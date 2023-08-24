@@ -22,7 +22,7 @@ def resize_image(image, max_width=1024):
 api = ocrspace.API(endpoint=API_ENDPOINT, api_key=API_KEY, OCREngine=2, language='eng', scale=True)
 
 # Add a radio button to choose between URL and file upload
-source = st.radio("Select Source", ("URL", "Upload File"))
+source = st.radio("Select Source", ("URL", "Upload Photo"))
 
 if source == "URL":
     # Get URL input from the user
