@@ -9,6 +9,15 @@ st.title("Streamlit OCR App")
 API_ENDPOINT = st.secrets['API_ENDPOINT']
 API_KEY = st.secrets['API_KEY']
 
+def resize_image(image, max_width=1024):
+    width, height = image.size
+    if width <= max_width:
+        return image
+    new_width = max_width
+    new_height = int((new_width / width) * height)
+    resized_image = image.resize((new_width, new_height))
+    return resized_image
+
 # Create an OCR API instance
 api = ocrspace.API(endpoint=API_ENDPOINT, api_key=API_KEY, OCREngine=2, language='eng', scale=True)
 
@@ -30,37 +39,17 @@ if source == "URL":
 
 else:
     # Get file upload from the user
-    uploaded_file = st.file_uploader("Upload an image:", type=["jpg", "png", "jpeg", "heic"])
+    uploaded_file = st.file_uploader("Upload an image:", type=["jpg", "png", "jpeg", "heic", "pdf"])
 
     if uploaded_file is not None:
         # Convert the BytesIO object to an image
         image = Image.open(uploaded_file)
-        
-        # Check and correct image orientation
-        if hasattr(image, '_getexif'):
-            exif = image._getexif()
-            if exif is not None and 274 in exif:
-                orientation = exif[274]
-                if orientation == 3:
-                    image = image.rotate(180, expand=True)
-                elif orientation == 6:
-                    image = image.rotate(270, expand=True)
-                elif orientation == 8:
-                    image = image.rotate(90, expand=True)
-        
-        # Check image size and resize if necessary
-        max_file_size_kb = 1024
-        img_byte_array = io.BytesIO()
-        image.save(img_byte_array, format='JPEG')
-        
-        if len(img_byte_array.getvalue()) / 1024 > max_file_size_kb:
-            image.thumbnail((800, 800))  # Adjust the size as needed
-            img_byte_array = io.BytesIO()
-            image.save(img_byte_array, format='JPEG')
+        resized_image = resize_image(image)
+        resized_image.save("resized_image.jpg")
 
         if st.button("Run OCR"):
             # Provide the file path to the saved image
-            response = api.ocr_file("uploaded_image.jpg")
+            response = api.ocr_file("resized_image.jpg")
             st.write("OCR Output:")
             st.write(response)
             st.image(uploaded_file, caption="Uploaded Image", use_column_width=True)
