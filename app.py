@@ -33,9 +33,30 @@ else:
     uploaded_file = st.file_uploader("Upload an image:", type=["jpg", "png", "jpeg", "heic"])
 
     if uploaded_file is not None:
-        # Save the uploaded file to a temporary location
-        with open("uploaded_image.jpg", "wb") as f:
-            f.write(uploaded_file.read())
+        # Convert the BytesIO object to an image
+        image = Image.open(uploaded_file)
+        
+        # Check and correct image orientation
+        if hasattr(image, '_getexif'):
+            exif = image._getexif()
+            if exif is not None and 274 in exif:
+                orientation = exif[274]
+                if orientation == 3:
+                    image = image.rotate(180, expand=True)
+                elif orientation == 6:
+                    image = image.rotate(270, expand=True)
+                elif orientation == 8:
+                    image = image.rotate(90, expand=True)
+        
+        # Check image size and resize if necessary
+        max_file_size_kb = 1024
+        img_byte_array = io.BytesIO()
+        image.save(img_byte_array, format='JPEG')
+        
+        if len(img_byte_array.getvalue()) / 1024 > max_file_size_kb:
+            image.thumbnail((800, 800))  # Adjust the size as needed
+            img_byte_array = io.BytesIO()
+            image.save(img_byte_array, format='JPEG')
 
         if st.button("Run OCR"):
             # Provide the file path to the saved image
