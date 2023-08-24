@@ -39,7 +39,7 @@ if source == "URL":
 
 else:
     # Get file upload from the user
-    uploaded_file = st.file_uploader("Upload an image:", type=["jpg", "png", "jpeg", "heic", "pdf"])
+    uploaded_file = st.file_uploader("Upload an image:", type=["jpg", "png", "jpeg", "heic"])
 
     if uploaded_file is not None:
         # Convert the BytesIO object to an image
