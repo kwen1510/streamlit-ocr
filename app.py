@@ -30,7 +30,7 @@ if source == "URL":
 
 else:
     # Get file upload from the user
-    uploaded_file = st.file_uploader("Upload an image:", type=["jpg", "png", "jpeg"])
+    uploaded_file = st.file_uploader("Upload an image:", type=["jpg", "png", "jpeg", "heic"])
 
     if uploaded_file is not None:
         # Save the uploaded file to a temporary location
